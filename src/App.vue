@@ -2,16 +2,14 @@
   <div id="app" class="MoviesApp">
     <SearchInput @search="startSearching" v-model:search-text="searchText" />
     <div class="MoviesSort">
-      <button @click="startSorting('name', 'asc')">
-        {{ `Sort by name UP` }}
-      </button>
-      <button @click="startSorting('name', 'desc')">
-        {{ `Sort by name DOWN` }}
+      <button @click="startSorting('name', orderByModel)">
+        {{ `Sort by name` }}
       </button>
     </div>
     <div class="MoviesList">
       <MovieCrad
         v-for="movie in filteredMovies"
+        :key="movie.id"
         :movie="movie"
         @open-popup="onOpenPopup(movie)"
       />
@@ -25,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import MovieCrad from "./components/MovieCrad.vue";
 import { getAllMovies, getMovieBySearching, getMoviesSort } from "@/utils/api";
 import MovieDetailesPopup from "./components/MovieDetailesPopup.vue";
@@ -38,7 +36,10 @@ const movieToPopup = ref<MovieType>();
 const searchText = ref("");
 
 onMounted(() => {
-  getAllMovies().then((res) => (filteredMovies.value = res));
+  getAllMovies().then((res) => {
+    res?.sort((a, b) => (localStorage.getItem(a.id) ? -1 : 1));
+    filteredMovies.value = res;
+  });
 });
 
 function onOpenPopup(movie: MovieType) {
@@ -46,12 +47,18 @@ function onOpenPopup(movie: MovieType) {
   showPopup.value = true;
 }
 
+const orderByModel = ref<OrderBy>("asc");
+
 function startSearching(text: string) {
   getMovieBySearching(text).then((res) => (filteredMovies.value = res));
 }
 
 function startSorting(soryBy: string, orderBy: OrderBy) {
-  getMoviesSort(soryBy, orderBy).then((res) => (filteredMovies.value = res));
+  if (orderBy === "asc") orderByModel.value = "desc";
+  else orderByModel.value = "asc";
+  getMoviesSort(soryBy, orderByModel.value).then(
+    (res) => (filteredMovies.value = res)
+  );
 }
 </script>
 

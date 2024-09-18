@@ -51,7 +51,8 @@ defineEmits(["close-popup"]);
 </script>
 <style>
 .MovieDetailesPopup {
-  width: 65%;
+  height: fit-content;
+  width: 50%;
   position: fixed;
   top: 50%;
   left: 50%;

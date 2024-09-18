@@ -1,9 +1,18 @@
 <template>
   <div class="MovieCard" v-if="movie">
-    <header>
+    <h3>
       {{ `${movie?.title} - ${movie.year} (${movie.runtime}min)` }}
-    </header>
+    </h3>
     <main class="MovieContent">
+      <input
+        class="FavoriteMovie"
+        type="checkbox"
+        :id="movie.id"
+        :name="movie.id"
+        :value="movie.title"
+        :checked="isChecked(movie.id)"
+        @change="setMovieAsFavorite(movie.id, movie.title)"
+      />
       <div class="StartContent">
         <span>{{ `Gener: ${movie.genre}` }}</span>
         <span>{{ `Language: ${movie.language}` }}</span>
@@ -45,6 +54,20 @@ defineProps({
 });
 
 defineEmits(["open-popup"]);
+
+function setMovieAsFavorite(id: string, title: string) {
+  const isFavorite = localStorage.getItem(id);
+  if (isFavorite) {
+    localStorage.removeItem(id);
+    console.log("inside");
+  } else {
+    localStorage.setItem(id, title);
+  }
+}
+
+function isChecked(id: string) {
+  return !!localStorage.getItem(id);
+}
 </script>
 <style>
 .MovieCard {
@@ -60,10 +83,15 @@ defineEmits(["open-popup"]);
     align-items: center;
     justify-content: space-between;
     padding: 10px;
+    width: 90%;
     .StartContent {
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+    .FavoriteMovie {
+      width: 20px;
+      height: 20px;
     }
   }
   .DetailsBtn {
